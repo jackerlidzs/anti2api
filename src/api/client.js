@@ -1,4 +1,3 @@
-import axios from 'axios';
 import tokenManager from '../auth/token_manager.js';
 import config from '../config/config.js';
 import AntigravityRequester from '../AntigravityRequester.js';
@@ -15,6 +14,10 @@ import {
   convertToToolCall,
   registerStreamMemoryCleanup
 } from './stream_parser.js';
+import memoryManager, { MemoryPressure, registerMemoryPoolCleanup } from '../utils/memoryManager.js';
+import { buildAxiosRequestConfig, httpRequest, httpStreamRequest } from '../utils/httpClient.js';
+import { setReasoningSignature, setToolSignature } from '../utils/thoughtSignatureCache.js';
+import { getOriginalToolName } from '../utils/toolNameCache.js';
 
 // 请求客户端：优先使用 AntigravityRequester，失败则降级到 axios
 let requester = null;
@@ -118,15 +121,6 @@ function buildHeaders(token) {
   };
 }
 
-function buildAxiosConfig(url, headers, body = null) {
-  return buildAxiosRequestConfig({
-    method: 'POST',
-    url,
-    headers,
-    data: body
-  });
-}
-
 function buildRequesterConfig(headers, body = null) {
   const reqConfig = {
     method: 'POST',
@@ -191,8 +185,12 @@ export async function generateAssistantResponse(requestBody, token, callback) {
   
   try {
     if (useAxios) {
-      const axiosConfig = { ...buildAxiosConfig(config.api.url, headers, requestBody), responseType: 'stream' };
-      const response = await axios(axiosConfig);
+      const response = await httpStreamRequest({
+        method: 'POST',
+        url: config.api.url,
+        headers,
+        data: requestBody
+      });
       
       // 使用 Buffer 直接处理，避免 toString 的内存分配
       response.data.on('data', chunk => {
@@ -242,7 +240,12 @@ export async function generateAssistantResponse(requestBody, token, callback) {
 async function fetchRawModels(headers, token) {
   try {
     if (useAxios) {
-      const response = await axios(buildAxiosConfig(config.api.modelsUrl, headers, {}));
+      const response = await httpRequest({
+        method: 'POST',
+        url: config.api.modelsUrl,
+        headers,
+        data: {}
+      });
       return response.data;
     }
     const response = await requester.antigravity_fetch(config.api.modelsUrl, buildRequesterConfig(headers, {}));
@@ -345,7 +348,12 @@ export async function generateAssistantResponseNoStream(requestBody, token) {
   
   try {
     if (useAxios) {
-      data = (await axios(buildAxiosConfig(config.api.noStreamUrl, headers, requestBody))).data;
+      data = (await httpRequest({
+        method: 'POST',
+        url: config.api.noStreamUrl,
+        headers,
+        data: requestBody
+      })).data;
     } else {
       const response = await requester.antigravity_fetch(config.api.noStreamUrl, buildRequesterConfig(headers, requestBody));
       if (response.status !== 200) {
@@ -427,7 +435,12 @@ export async function generateImageForSD(requestBody, token) {
   
   try {
     if (useAxios) {
-      data = (await axios(buildAxiosConfig(config.api.noStreamUrl, headers, requestBody))).data;
+      data = (await httpRequest({
+        method: 'POST',
+        url: config.api.noStreamUrl,
+        headers,
+        data: requestBody
+      })).data;
     } else {
       const response = await requester.antigravity_fetch(config.api.noStreamUrl, buildRequesterConfig(headers, requestBody));
       if (response.status !== 200) {

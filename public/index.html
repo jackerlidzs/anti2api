@@ -27,17 +27,24 @@
         })();
     </script>
     <style>
-        /* 防止闪烁的关键样式 */
-        html:not(.auth-ready) #loginForm,
-        html:not(.auth-ready) #mainContent { visibility: hidden; }
-        html.logged-in #loginForm { display: none !important; }
-        html.logged-in #mainContent { display: flex !important; }
-        html:not(.logged-in) #mainContent { display: none !important; }
-        /* Tab状态防闪烁 */
-        html.tab-settings #tokensPage { display: none !important; }
-        html.tab-settings #settingsPage { display: block !important; }
-        html.tab-settings .tab[data-tab="tokens"] { background: transparent !important; color: var(--text-light, #888) !important; }
-        html.tab-settings .tab[data-tab="settings"] { background: var(--primary, #4f46e5) !important; color: white !important; }
+/* 防止闪烁的关键样式 - 来自 binary-build */
+html:not(.auth-ready) #loginForm,
+html:not(.auth-ready) #mainContent { visibility: hidden; }
+/* 登录状态显示控制 - 合并两个分支 *
+.logged-in #loginForm { display: none !important; }
+.logged-in #mainContent { display: flex !important; }
+html:not(.logged-in) #mainContent { display: none !important; }
+/* Tab状态管理 - 来自 binary-build */
+html.tab-settings #tokensPage { display: none !important; }
+html.tab-settings #settingsPage { display: block !important; }
+html.tab-settings .tab[data-tab="tokens"] { 
+    background: transparent !important;
+    color: var(--text-light, #888) !important; 
+}
+html.tab-settings .tab[data-tab="settings"] { 
+    background: var(--primary, #4f46e5) !important; 
+    color: white !important; 
+}
     </style>
     <!-- 主样式表 - 优先加载 -->
     <link rel="stylesheet" href="style.css">

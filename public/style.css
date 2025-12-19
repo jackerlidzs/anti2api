@@ -93,7 +93,8 @@ body {
     background: var(--bg);
     color: var(--text);
     line-height: 1.5;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     font-size: 1rem;
     /* 字体渲染优化 */
     -webkit-font-smoothing: antialiased;
@@ -117,18 +118,20 @@ code, pre, .mono, .token-display {
     font-family: 'Ubuntu Mono', 'Consolas', 'Monaco', monospace !important;
 }
 
-.container { 
-    max-width: 1400px; 
-    margin: 0 auto; 
-    padding: 0.5rem; 
-    height: 100vh; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0.5rem;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
 }
 
 /* 登录表单 */
 .login-form {
+    margin: auto;
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -215,6 +218,7 @@ button.loading::after {
 
 /* 主内容区 */
 .main-content {
+    margin: 0;
     background: rgba(255, 255, 255, 0.6);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
@@ -226,6 +230,7 @@ button.loading::after {
     display: flex;
     flex-direction: column;
     border: 1px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
 }
 @media (prefers-color-scheme: dark) {
     .main-content {
@@ -285,7 +290,24 @@ button.loading::after {
 .content {
     padding: 1rem;
     flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#tokensPage {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#settingsPage {
+    flex: 1;
+    min-height: 0;
     overflow-y: auto;
+    padding-right: 4px;
 }
 
 /* 顶部栏 - 统计+操作 */
@@ -298,6 +320,7 @@ button.loading::after {
     border-radius: 0.75rem;
     margin-bottom: 1rem;
     border: 1.5px solid var(--border);
+    flex-shrink: 0;
 }
 @media (prefers-color-scheme: dark) {
     .top-bar {
@@ -363,6 +386,12 @@ button.loading::after {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 0.75rem;
+    align-items: start;
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+    padding-bottom: 0.5rem;
+    min-height: 0;
 }
 .token-card {
     background: rgba(255, 255, 255, 0.6);
@@ -706,6 +735,7 @@ button.loading::after {
     box-shadow: 0 16px 48px rgba(0,0,0,0.2);
     animation: scaleIn 0.2s;
     border: 1px solid rgba(255, 255, 255, 0.5);
+    color: var(--text);
 }
 @media (prefers-color-scheme: dark) {
     .modal-content {
@@ -741,14 +771,15 @@ button.loading::after {
 .form-modal .modal-content { max-width: 480px; }
 .form-modal input { margin-bottom: 0.75rem; }
 .form-modal .form-row { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1rem; }
-.form-modal .oauth-steps { 
-    background: rgba(59,130,246,0.1); 
-    padding: 0.875rem; 
-    border-radius: 0.5rem; 
-    margin-bottom: 1rem; 
-    border: 1.5px solid var(--info); 
+.form-modal .oauth-steps {
+    background: rgba(59,130,246,0.1);
+    padding: 0.875rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1.5px solid var(--info);
+    color: var(--text);
 }
-.form-modal .oauth-steps p { margin-bottom: 0.5rem; font-size: 0.8rem; }
+.form-modal .oauth-steps p { margin-bottom: 0.5rem; font-size: 0.8rem; color: var(--text); }
 .form-modal .oauth-steps p:last-child { margin-bottom: 0; }
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -1026,6 +1057,7 @@ input:checked + .slider:before {
     border: 1.5px solid var(--border);
     transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
     cursor: default;
+    color: var(--text);
 }
 .quota-item:hover {
     transform: scale(1.02);
@@ -1222,7 +1254,7 @@ input:checked + .slider:before {
     font-size: 0.7rem;
 }
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 /* 敏感信息模糊 */
 .sensitive-info.blurred {
@@ -1233,10 +1265,10 @@ input:checked + .slider:before {
 
 /* 响应式 */
 @media (max-width: 768px) {
-    .container { padding: 0; height: 100vh; }
-    .login-form { margin: 0.5rem; padding: 1.5rem; }
+    .container { padding: 0; height: 100vh; align-items: stretch; }
+    .login-form { margin: auto 0.5rem; padding: 1.5rem; }
     .login-form h2 { font-size: 1.25rem; }
-    .main-content { height: 100vh; border-radius: 0; }
+    .main-content { height: 100vh; border-radius: 0; margin: 0; }
     .header {
         padding: 0.5rem 0.75rem;
         flex-wrap: nowrap;
