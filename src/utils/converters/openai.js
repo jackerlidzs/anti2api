@@ -1,4 +1,4 @@
-// OpenAI 格式转换工具
+// OpenAI Format Converter Tools
 import config from '../../config/config.js';
 import { extractSystemInstruction } from '../utils.js';
 import { convertOpenAIToolsToAntigravity } from '../toolConverter.js';
@@ -86,7 +86,7 @@ function openaiMessageToAntigravity(openaiMessages, enableThinking, actualModelN
       handleToolCall(message, antigravityMessages);
     }
   }
-  //console.log(JSON.stringify(antigravityMessages,null,2));
+
   return antigravityMessages;
 }
 

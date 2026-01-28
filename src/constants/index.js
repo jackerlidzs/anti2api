@@ -1,117 +1,117 @@
 /**
- * 应用常量定义
+ * Application Constants Definition
  * @module constants
  */
 
-// ==================== 缓存相关常量 ====================
+// ==================== Cache Constants ====================
 
 /**
- * 文件缓存有效期（毫秒）
+ * File cache TTL (ms)
  * @type {number}
  */
 export const FILE_CACHE_TTL = 5000;
 
 /**
- * 文件保存延迟（毫秒）- 用于 debounce
+ * File save delay (ms) - For debounce
  * @type {number}
  */
 export const FILE_SAVE_DELAY = 1000;
 
 /**
- * 额度缓存有效期（毫秒）- 5分钟
+ * Quota cache TTL (ms) - 5 minutes
  * @type {number}
  */
 export const QUOTA_CACHE_TTL = 5 * 60 * 1000;
 
 /**
- * 额度清理间隔（毫秒）- 1小时
+ * Quota cleanup interval (ms) - 1 hour
  * @type {number}
  */
 export const QUOTA_CLEANUP_INTERVAL = 60 * 60 * 1000;
 
 /**
- * 模型列表缓存默认有效期（毫秒）- 1小时
+ * Model list cache default TTL (ms) - 1 hour
  * @type {number}
  */
 export const MODEL_LIST_CACHE_TTL = 60 * 60 * 1000;
 
-// ==================== 内存管理常量 ====================
+// ==================== Memory Management Constants ====================
 
-// 注意：内存压力阈值现在由 memoryManager 根据用户配置的 memoryThreshold 动态计算
-// 用户配置的 memoryThreshold（MB）即为高压力阈值，其他阈值按比例计算：
-// - LOW: 30% 阈值
-// - MEDIUM: 60% 阈值
-// - HIGH: 100% 阈值（用户配置值）
-// - TARGET: 50% 阈值
+// Note: Memory pressure thresholds are now dynamically calculated by memoryManager based on user configured memoryThreshold
+// User configured memoryThreshold (MB) is the HIGH pressure threshold, others are calculated proportionally:
+// - LOW: 30% of threshold
+// - MEDIUM: 60% of threshold
+// - HIGH: 100% of threshold (User configured)
+// - TARGET: 50% of threshold
 
 /**
- * GC 冷却时间（毫秒）
+ * GC Cooldown (ms)
  * @type {number}
  */
 export const GC_COOLDOWN = 10000;
 
 /**
- * 默认内存检查间隔（毫秒）
+ * Default memory check interval (ms)
  * @type {number}
  */
 export const MEMORY_CHECK_INTERVAL = 30000;
 
-// ==================== 服务器相关常量 ====================
+// ==================== Server Constants ====================
 
 /**
- * 默认心跳间隔（毫秒）
+ * Default heartbeat interval (ms)
  * @type {number}
  */
 export const DEFAULT_HEARTBEAT_INTERVAL = 15000;
 
 /**
- * 默认服务器端口
+ * Default server port
  * @type {number}
  */
 export const DEFAULT_SERVER_PORT = 8045;
 
 /**
- * 默认服务器主机
+ * Default server host
  * @type {string}
  */
 export const DEFAULT_SERVER_HOST = '0.0.0.0';
 
 /**
- * 默认请求超时（毫秒）
+ * Default request timeout (ms)
  * @type {number}
  */
 export const DEFAULT_TIMEOUT = 300000;
 
 /**
- * 默认重试次数
+ * Default retry times
  * @type {number}
  */
 export const DEFAULT_RETRY_TIMES = 3;
 
 /**
- * 默认最大请求体大小
+ * Default max request body size
  * @type {string}
  */
 export const DEFAULT_MAX_REQUEST_SIZE = '50mb';
 
-// ==================== Token 轮询相关常量 ====================
+// ==================== Token Rotation Constants ====================
 
 /**
- * 默认每个 Token 请求次数后切换
+ * Default rotation request count per token
  * @type {number}
  */
 export const DEFAULT_REQUEST_COUNT_PER_TOKEN = 50;
 
 /**
- * Token 过期提前刷新时间（毫秒）- 5分钟
+ * Token refresh buffer before expiration (ms) - 5 minutes
  * @type {number}
  */
 export const TOKEN_REFRESH_BUFFER = 300000;
 
-// ==================== 生成参数默认值 ====================
+// ==================== Generation Default Params ====================
 
 /**
- * 默认生成参数
+ * Default generation params
  */
 export const DEFAULT_GENERATION_PARAMS = {
   temperature: 1,
@@ -122,7 +122,7 @@ export const DEFAULT_GENERATION_PARAMS = {
 };
 
 /**
- * reasoning_effort 到 thinkingBudget 的映射
+ * Map reasoning_effort to thinkingBudget
  */
 export const REASONING_EFFORT_MAP = {
   low: 1024,
@@ -130,16 +130,16 @@ export const REASONING_EFFORT_MAP = {
   high: 32000
 };
 
-// ==================== 图片相关常量 ====================
+// ==================== Image Constants ====================
 
 /**
- * 默认最大保留图片数量
+ * Default max images to retain
  * @type {number}
  */
 export const DEFAULT_MAX_IMAGES = 10;
 
 /**
- * MIME 类型到文件扩展名映射
+ * MIME type to file extension map
  */
 export const MIME_TO_EXT = {
   'image/jpeg': 'jpg',
@@ -148,10 +148,10 @@ export const MIME_TO_EXT = {
   'image/webp': 'webp'
 };
 
-// ==================== 停止序列 ====================
+// ==================== Stop Sequences ====================
 
 /**
- * 默认停止序列
+ * Default stop sequences
  * @type {string[]}
  */
 export const DEFAULT_STOP_SEQUENCES = [
@@ -162,8 +162,8 @@ export const DEFAULT_STOP_SEQUENCES = [
   '<|end_of_turn|>'
 ];
 
-// ==================== 管理员默认配置 ====================
+// ==================== Admin Default Config ====================
 
-// 注意：管理员凭据（用户名、密码、JWT密钥）现在由 config.js 自动生成随机值
-// 如果用户未配置，启动时会在控制台显示生成的凭据
-// 不再使用硬编码的默认值，提高安全性
+// Note: Admin credentials (username, password, JWT secret) are now automatically generated in config.js
+// If not configured, generated credentials will be displayed in console at startup
+// No longer using hardcoded defaults for security

@@ -1,4 +1,4 @@
-// Claude 格式转换工具
+// Claude Format Converter Tools
 import config from '../../config/config.js';
 import { convertClaudeToolsToAntigravity } from '../toolConverter.js';
 import {
@@ -66,7 +66,7 @@ function handleClaudeAssistantMessage(message, antigravityMessages, enableThinki
 
   const hasContent = textContent && textContent.trim() !== '';
   const parts = [];
-  
+
   if (enableThinking) {
     parts.push(createThoughtPart(' '));
   }

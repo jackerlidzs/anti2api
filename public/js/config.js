@@ -1,4 +1,4 @@
-// 配置管理：加载、保存
+// Config management: Load, Save
 
 function toggleRequestCountInput() {
     const strategy = document.getElementById('rotationStrategy').value;
@@ -17,22 +17,22 @@ async function loadRotationStatus() {
         if (data.success) {
             const { strategy, requestCount, currentIndex } = data.data;
             const strategyNames = {
-                'round_robin': '均衡负载',
-                'quota_exhausted': '额度耗尽切换',
-                'request_count': '自定义次数'
+                'round_robin': 'Load Balance',
+                'quota_exhausted': 'Quota Exhausted',
+                'request_count': 'Custom Count'
             };
             const statusEl = document.getElementById('currentRotationInfo');
             if (statusEl) {
                 let statusText = `${strategyNames[strategy] || strategy}`;
                 if (strategy === 'request_count') {
-                    statusText += ` (每${requestCount}次)`;
+                    statusText += ` (${requestCount} / request)`;
                 }
-                statusText += ` | 当前索引: ${currentIndex}`;
+                statusText += ` | Current Index: ${currentIndex}`;
                 statusEl.textContent = statusText;
             }
         }
     } catch (error) {
-        console.error('加载轮询状态失败:', error);
+        console.error('Load rotation status failed:', error);
     }
 }
 
@@ -45,12 +45,12 @@ async function loadConfig() {
         if (data.success) {
             const form = document.getElementById('configForm');
             const { env, json } = data.data;
-            
+
             Object.entries(env).forEach(([key, value]) => {
                 const input = form.elements[key];
                 if (input) input.value = value || '';
             });
-            
+
             if (json.server) {
                 if (form.elements['PORT']) form.elements['PORT'].value = json.server.port || '';
                 if (form.elements['HOST']) form.elements['HOST'].value = json.server.host || '';
@@ -82,11 +82,11 @@ async function loadConfig() {
                 }
                 toggleRequestCountInput();
             }
-            
+
             loadRotationStatus();
         }
     } catch (error) {
-        showToast('加载配置失败: ' + error.message, 'error');
+        showToast('Load config failed: ' + error.message, 'error');
     }
 }
 
@@ -95,7 +95,7 @@ async function saveConfig(e) {
     const form = e.target;
     const formData = new FormData(form);
     const allConfig = Object.fromEntries(formData);
-    
+
     const sensitiveKeys = ['API_KEY', 'ADMIN_USERNAME', 'ADMIN_PASSWORD', 'JWT_SECRET', 'PROXY', 'SYSTEM_INSTRUCTION', 'IMAGE_BASE_URL'];
     const envConfig = {};
     const jsonConfig = {
@@ -105,13 +105,13 @@ async function saveConfig(e) {
         other: {},
         rotation: {}
     };
-    
-    // 处理checkbox：未选中的checkbox不会出现在FormData中
+
+    // Handle checkbox: unchecked checkboxes do not appear in FormData
     jsonConfig.other.skipProjectIdFetch = form.elements['SKIP_PROJECT_ID_FETCH']?.checked || false;
     jsonConfig.other.useNativeAxios = form.elements['USE_NATIVE_AXIOS']?.checked || false;
     jsonConfig.other.useContextSystemPrompt = form.elements['USE_CONTEXT_SYSTEM_PROMPT']?.checked || false;
     jsonConfig.other.passSignatureToClient = form.elements['PASS_SIGNATURE_TO_CLIENT']?.checked || false;
-    
+
     Object.entries(allConfig).forEach(([key, value]) => {
         if (sensitiveKeys.includes(key)) {
             envConfig[key] = value;
@@ -135,14 +135,14 @@ async function saveConfig(e) {
                 jsonConfig.other.retryTimes = Number.isNaN(num) ? undefined : num;
             }
             else if (key === 'SKIP_PROJECT_ID_FETCH' || key === 'USE_NATIVE_AXIOS' || key === 'USE_CONTEXT_SYSTEM_PROMPT' || key === 'PASS_SIGNATURE_TO_CLIENT') {
-                // 跳过，已在上面处理
+                // Skip, already handled above
             }
             else if (key === 'ROTATION_STRATEGY') jsonConfig.rotation.strategy = value || undefined;
             else if (key === 'ROTATION_REQUEST_COUNT') jsonConfig.rotation.requestCount = parseInt(value) || undefined;
             else envConfig[key] = value;
         }
     });
-    
+
     Object.keys(jsonConfig).forEach(section => {
         Object.keys(jsonConfig[section]).forEach(key => {
             if (jsonConfig[section][key] === undefined) {
@@ -153,8 +153,8 @@ async function saveConfig(e) {
             delete jsonConfig[section];
         }
     });
-    
-    showLoading('正在保存配置...');
+
+    showLoading('Saving config...');
     try {
         const response = await authFetch('/admin/config', {
             method: 'PUT',
@@ -164,9 +164,9 @@ async function saveConfig(e) {
             },
             body: JSON.stringify({ env: envConfig, json: jsonConfig })
         });
-        
+
         const data = await response.json();
-        
+
         if (jsonConfig.rotation && Object.keys(jsonConfig.rotation).length > 0) {
             await authFetch('/admin/rotation', {
                 method: 'PUT',
@@ -177,16 +177,16 @@ async function saveConfig(e) {
                 body: JSON.stringify(jsonConfig.rotation)
             });
         }
-        
+
         hideLoading();
         if (data.success) {
-            showToast('配置已保存', 'success');
+            showToast('Config saved', 'success');
             loadConfig();
         } else {
-            showToast(data.message || '保存失败', 'error');
+            showToast(data.message || 'Save failed', 'error');
         }
     } catch (error) {
         hideLoading();
-        showToast('保存失败: ' + error.message, 'error');
+        showToast('Save failed: ' + error.message, 'error');
     }
 }

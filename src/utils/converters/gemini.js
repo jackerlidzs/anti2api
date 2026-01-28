@@ -1,4 +1,4 @@
-// Gemini 格式转换工具
+// Gemini Format Converter Tools
 import config from '../../config/config.js';
 import { generateRequestId } from '../idGenerator.js';
 import { convertGeminiToolsToAntigravity } from '../toolConverter.js';
@@ -6,19 +6,19 @@ import { getSignatureContext, createThoughtPart, modelMapping, isEnableThinking 
 import { normalizeGeminiParameters, toGenerationConfig } from '../parameterNormalizer.js';
 
 /**
- * 为 functionCall 生成唯一 ID
+ * Generate unique ID for functionCall
  */
 function generateFunctionCallId() {
   return `call_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 }
 
 /**
- * 处理 functionCall 和 functionResponse 的 ID 匹配
+ * Process functionCall and functionResponse ID matching
  */
 function processFunctionCallIds(contents) {
   const functionCallIds = [];
-  
-  // 收集所有 functionCall 的 ID
+
+  // Collect all functionCall IDs
   contents.forEach(content => {
     if (content.role === 'model' && content.parts && Array.isArray(content.parts)) {
       content.parts.forEach(part => {
@@ -32,7 +32,7 @@ function processFunctionCallIds(contents) {
     }
   });
 
-  // 为 functionResponse 分配对应的 ID
+  // Assign corresponding IDs for functionResponse
   let responseIndex = 0;
   contents.forEach(content => {
     if (content.role === 'user' && content.parts && Array.isArray(content.parts)) {
@@ -49,16 +49,16 @@ function processFunctionCallIds(contents) {
 }
 
 /**
- * 处理 model 消息中的 thought 和签名
+ * Process thoughts and signatures in model messages
  */
 function processModelThoughts(content, reasoningSignature, toolSignature) {
   const parts = content.parts;
-  
-  // 查找 thought 和独立 thoughtSignature 的位置
+
+  // Find thought and independent thoughtSignature positions
   let thoughtIndex = -1;
   let signatureIndex = -1;
   let signatureValue = null;
-  
+
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
     if (part.thought === true && !part.thoughtSignature) {
@@ -69,8 +69,8 @@ function processModelThoughts(content, reasoningSignature, toolSignature) {
       signatureValue = part.thoughtSignature;
     }
   }
-  
-  // 合并或添加 thought 和签名
+
+  // Merge or add thought and signature
   if (thoughtIndex !== -1 && signatureIndex !== -1) {
     parts[thoughtIndex].thoughtSignature = signatureValue;
     parts.splice(signatureIndex, 1);
@@ -79,8 +79,8 @@ function processModelThoughts(content, reasoningSignature, toolSignature) {
   } else if (thoughtIndex === -1) {
     parts.unshift(createThoughtPart(' ', reasoningSignature));
   }
-  
-  // 收集独立的签名 parts（用于 functionCall）
+
+  // Collect independent signature parts (for functionCall)
   const standaloneSignatures = [];
   for (let i = parts.length - 1; i >= 0; i--) {
     const part = parts[i];
@@ -88,8 +88,8 @@ function processModelThoughts(content, reasoningSignature, toolSignature) {
       standaloneSignatures.unshift({ index: i, signature: part.thoughtSignature });
     }
   }
-  
-  // 为 functionCall 分配签名
+
+  // Assign signature to functionCall
   let sigIndex = 0;
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
@@ -102,8 +102,8 @@ function processModelThoughts(content, reasoningSignature, toolSignature) {
       }
     }
   }
-  
-  // 移除已使用的独立签名 parts
+
+  // Remove used independent signature parts
   for (let i = standaloneSignatures.length - 1; i >= 0; i--) {
     if (i < sigIndex) {
       parts.splice(standaloneSignatures[i].index, 1);
@@ -121,7 +121,7 @@ export function generateGeminiRequestBody(geminiBody, modelName, token) {
 
     if (enableThinking) {
       const { reasoningSignature, toolSignature } = getSignatureContext(token.sessionId, actualModelName);
-      
+
       request.contents.forEach(content => {
         if (content.role === 'model' && content.parts && Array.isArray(content.parts)) {
           processModelThoughts(content, reasoningSignature, toolSignature);
@@ -130,20 +130,20 @@ export function generateGeminiRequestBody(geminiBody, modelName, token) {
     }
   }
 
-  // 使用统一参数规范化模块处理 Gemini 格式参数
+  // Use unified parameter normalization module to process Gemini format parameters
   const normalizedParams = normalizeGeminiParameters(request.generationConfig || {});
-  
-  // 转换为 generationConfig 格式
+
+  // Convert to generationConfig format
   request.generationConfig = toGenerationConfig(normalizedParams, enableThinking, actualModelName);
   request.sessionId = token.sessionId;
   delete request.safetySettings;
-  
-  // 转换工具定义
+
+  // Convert tool definitions
   if (request.tools && Array.isArray(request.tools)) {
     request.tools = convertGeminiToolsToAntigravity(request.tools, token.sessionId, actualModelName);
   }
-  
-  // 添加工具配置
+
+  // Add tool config
   if (request.tools && request.tools.length > 0 && !request.toolConfig) {
     request.toolConfig = { functionCallingConfig: { mode: 'VALIDATED' } };
   }
@@ -154,8 +154,8 @@ export function generateGeminiRequestBody(geminiBody, modelName, token) {
     role: 'user',
     parts: [{ text: mergedText }]
   };
-  
-  //console.log(JSON.stringify(request, null, 2))
+
+
 
   const requestBody = {
     project: token.projectId,
