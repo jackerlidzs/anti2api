@@ -2144,7 +2144,7 @@ input:checked+.slider:before {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 0.25rem;
-    padding: 0 4px;
+    padding: 0 2px;
     height: 22px;
 }
 
@@ -2157,8 +2157,8 @@ input:checked+.slider:before {
 }
 
 .order-input {
-    width: 14px !important;
-    min-width: 14px !important;
+    width: 10px !important;
+    min-width: 10px !important;
     min-height: 18px !important;
     height: 18px !important;
     padding: 0 !important;
@@ -2179,4 +2179,5 @@ input:checked+.slider:before {
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15);
 }
+
 
