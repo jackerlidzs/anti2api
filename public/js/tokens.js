@@ -122,7 +122,10 @@ function renderTokens(tokens) {
                 </span>
                 <div class="token-header-right">
                     <button class="btn-icon" onclick="showTokenDetail('${safeRefreshToken}')" title="Edit All">✏️</button>
-                    <span class="token-id">#${tokenNumber}</span>
+                    <input type="number" class="order-input" value="${token.order ?? tokenNumber}" 
+                           onchange="updateTokenOrder('${safeRefreshToken}', this.value)" 
+                           onclick="event.stopPropagation()" 
+                           title="Change order" min="0" style="width: 40px; text-align: center; padding: 2px 4px; font-size: 0.8rem;">
                 </div>
             </div>
             <div class="token-info">
@@ -505,5 +508,37 @@ async function deleteToken(refreshToken) {
     } catch (error) {
         hideLoading();
         showToast('Delete failed: ' + error.message, 'error');
+    }
+}
+
+// Update token order
+async function updateTokenOrder(refreshToken, newOrder) {
+    const order = parseInt(newOrder);
+    if (isNaN(order) || order < 0) {
+        showToast('Invalid order value', 'warning');
+        loadTokens();
+        return;
+    }
+
+    try {
+        const response = await authFetch(`/admin/tokens/${encodeURIComponent(refreshToken)}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
+            },
+            body: JSON.stringify({ order: order })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+            showToast('Order updated', 'success');
+            skipAnimation = true;
+            loadTokens();
+        } else {
+            showToast(data.message || 'Update failed', 'error');
+        }
+    } catch (error) {
+        showToast('Update order failed: ' + error.message, 'error');
     }
 }

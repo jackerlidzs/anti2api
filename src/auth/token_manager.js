@@ -56,6 +56,9 @@ class TokenManager {
       log.info('Initializing token manager...');
       const tokenArray = await this.store.readAll();
 
+      // Sort by order field (ascending), tokens without order go last
+      tokenArray.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+
       this.tokens = tokenArray.filter(token => token.enable !== false).map(token => ({
         ...token,
         sessionId: generateSessionId()
@@ -564,6 +567,12 @@ class TokenManager {
       if (tokenData.hasQuota !== undefined) {
         newToken.hasQuota = tokenData.hasQuota;
       }
+      // Auto-assign order if not provided
+      if (tokenData.order !== undefined) {
+        newToken.order = tokenData.order;
+      } else {
+        newToken.order = allTokens.length;
+      }
 
       allTokens.push(newToken);
       await this.store.writeAll(allTokens);
@@ -619,7 +628,10 @@ class TokenManager {
     try {
       const allTokens = await this.store.readAll();
 
-      return allTokens.map(token => ({
+      // Sort by order field (ascending)
+      allTokens.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+
+      return allTokens.map((token, index) => ({
         refresh_token: token.refresh_token,
         access_token: token.access_token,
         access_token_suffix: token.access_token ? `...${token.access_token.slice(-8)}` : 'N/A',
@@ -628,7 +640,8 @@ class TokenManager {
         enable: token.enable !== false,
         projectId: token.projectId || null,
         email: token.email || null,
-        hasQuota: token.hasQuota !== false
+        hasQuota: token.hasQuota !== false,
+        order: token.order ?? index
       }));
     } catch (error) {
       log.error('Get token list failed:', error.message);
