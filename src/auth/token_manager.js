@@ -56,8 +56,15 @@ class TokenManager {
       log.info('Initializing token manager...');
       const tokenArray = await this.store.readAll();
 
-      // Sort by order field (ascending), tokens without order go last
-      tokenArray.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+      // Sort by: 1) hasQuota=true first (priority), 2) then by order (ascending)
+      tokenArray.sort((a, b) => {
+        // Tokens with quota first
+        const aHasQuota = a.hasQuota !== false ? 0 : 1;
+        const bHasQuota = b.hasQuota !== false ? 0 : 1;
+        if (aHasQuota !== bHasQuota) return aHasQuota - bHasQuota;
+        // Then by order
+        return (a.order ?? 999) - (b.order ?? 999);
+      });
 
       this.tokens = tokenArray.filter(token => token.enable !== false).map(token => ({
         ...token,
@@ -628,8 +635,13 @@ class TokenManager {
     try {
       const allTokens = await this.store.readAll();
 
-      // Sort by order field (ascending)
-      allTokens.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
+      // Sort by: 1) hasQuota=true first (priority), 2) then by order (ascending)
+      allTokens.sort((a, b) => {
+        const aHasQuota = a.hasQuota !== false ? 0 : 1;
+        const bHasQuota = b.hasQuota !== false ? 0 : 1;
+        if (aHasQuota !== bHasQuota) return aHasQuota - bHasQuota;
+        return (a.order ?? 999) - (b.order ?? 999);
+      });
 
       return allTokens.map((token, index) => ({
         refresh_token: token.refresh_token,
@@ -665,3 +677,4 @@ export { RotationStrategy };
 
 const tokenManager = new TokenManager();
 export default tokenManager;
+
