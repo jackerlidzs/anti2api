@@ -122,10 +122,10 @@ function renderTokens(tokens) {
                 </span>
                 <div class="token-header-right">
                     <button class="btn-icon" onclick="showTokenDetail('${safeRefreshToken}')" title="Edit All">✏️</button>
-                    <input type="number" class="order-input" value="${token.order ?? tokenNumber}" 
-                           onchange="updateTokenOrder('${safeRefreshToken}', this.value)" 
-                           onclick="event.stopPropagation()" 
-                           title="Change order" min="0" style="width: 40px; text-align: center; padding: 2px 4px; font-size: 0.8rem;">
+                    <span class="order-label">#</span><input type="number" class="order-input" value="${token.order ?? tokenNumber}" 
+                           onchange="updateTokenOrder('${safeRefreshToken}', this.value, this)" 
+                           onclick="event.stopPropagation(); this.select();" 
+                           title="Change order (must be unique)" min="1">
                 </div>
             </div>
             <div class="token-info">
@@ -512,27 +512,40 @@ async function deleteToken(refreshToken) {
 }
 
 // Update token order
-async function updateTokenOrder(refreshToken, newOrder) {
+async function updateTokenOrder(refreshToken, newOrder, inputElement) {
     const order = parseInt(newOrder);
-    if (isNaN(order) || order < 0) {
-        showToast('Invalid order value', 'warning');
+    if (isNaN(order) || order < 1) {
+        showToast('Order must be >= 1', 'warning');
         loadTokens();
         return;
     }
 
+    // Check if order already exists (unique validation)
+    const existingToken = cachedTokens.find(t => 
+        t.refresh_token !== refreshToken && (t.order ?? 0) === order
+    );
+    if (existingToken) {
+        showToast('Order #' + order + ' already in use', 'warning');
+        if (inputElement) {
+            const originalToken = cachedTokens.find(t => t.refresh_token === refreshToken);
+            inputElement.value = originalToken?.order ?? '';
+        }
+        return;
+    }
+
     try {
-        const response = await authFetch(`/admin/tokens/${encodeURIComponent(refreshToken)}`, {
+        const response = await authFetch('/admin/tokens/' + encodeURIComponent(refreshToken), {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
+                'Authorization': 'Bearer ' + authToken
             },
             body: JSON.stringify({ order: order })
         });
 
         const data = await response.json();
         if (data.success) {
-            showToast('Order updated', 'success');
+            showToast('Order changed to #' + order, 'success');
             skipAnimation = true;
             loadTokens();
         } else {

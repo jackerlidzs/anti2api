@@ -2134,3 +2134,10 @@ input:checked+.slider:before {
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15);
 }
+
+.order-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-right: 1px;
+}
