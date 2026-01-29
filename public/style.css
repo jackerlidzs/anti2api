@@ -2157,8 +2157,8 @@ input:checked+.slider:before {
 }
 
 .order-input {
-    width: 20px !important;
-    min-width: 20px !important;
+    width: 14px !important;
+    min-width: 14px !important;
     min-height: 18px !important;
     height: 18px !important;
     padding: 0 !important;
@@ -2179,3 +2179,4 @@ input:checked+.slider:before {
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(8, 145, 178, 0.15);
 }
+
