@@ -122,10 +122,10 @@ function renderTokens(tokens) {
                 </span>
                 <div class="token-header-right">
                     <button class="btn-icon" onclick="showTokenDetail('${safeRefreshToken}')" title="Edit All">✏️</button>
-                    <span class="order-label">#</span><input type="number" class="order-input" value="${token.order ?? tokenNumber}" 
+                    <div class="order-wrapper"><span class="order-hash">#</span><input type="number" class="order-input" value="${token.order ?? tokenNumber}" 
                            onchange="updateTokenOrder('${safeRefreshToken}', this.value, this)" 
                            onclick="event.stopPropagation(); this.select();" 
-                           title="Change order (must be unique)" min="1">
+                           title="Change order (must be unique)" min="1"></div>
                 </div>
             </div>
             <div class="token-info">
@@ -555,3 +555,4 @@ async function updateTokenOrder(refreshToken, newOrder, inputElement) {
         showToast('Update order failed: ' + error.message, 'error');
     }
 }
+
